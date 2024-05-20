@@ -1,0 +1,58 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center">
+
+    <FrameLayout
+        android:id="@+id/remindersButtonFrame"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:padding="8dp">
+
+        <ImageButton
+            android:id="@+id/remindersButton"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center"
+            android:background="@drawable/twotone_circle_24"
+            android:contentDescription="Reminders"
+            android:src="@drawable/twotone_doorbell_48" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/homeButtonFrame"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:padding="8dp">
+
+        <ImageButton
+            android:id="@+id/homeButton"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center"
+            android:background="@drawable/twotone_circle_24"
+            android:src="@drawable/baseline_home_48"
+            android:contentDescription="Home" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/symptomsButtonFrame"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:padding="8dp">
+
+        <ImageButton
+            android:id="@+id/symptomsButton"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center"
+            android:background="@drawable/twotone_circle_24"
+            android:src="@drawable/twotone_medical_services_48"
+            android:contentDescription="Symptoms" />
+    </FrameLayout>
+</LinearLayout>
