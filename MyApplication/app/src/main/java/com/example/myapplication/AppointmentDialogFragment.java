@@ -1,6 +1,7 @@
 package com.example.myapplication;
 
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -19,6 +20,11 @@ import java.util.Calendar;
 
 public class AppointmentDialogFragment extends DialogFragment {
 
+    public interface AppointmentDialogListener {
+        void onAppointmentSaved(String name, String specialization, String time);
+    }
+
+    public AppointmentDialogListener listener;
     private String selectedDay;
     private TextView selectedDayTextView;
     private EditText appointmentDoctorNameEditText;
@@ -84,6 +90,21 @@ public class AppointmentDialogFragment extends DialogFragment {
             Toast.makeText(requireContext(), "Please enter all fields", Toast.LENGTH_SHORT).show();
             return;
         }
+
+        if (listener != null) {
+            listener.onAppointmentSaved(doctorName, specialization, time);
+        }
         dismiss();
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        try {
+            // Attach the listener
+            listener = (AppointmentDialogListener) getTargetFragment();
+        } catch (ClassCastException e) {
+            throw new ClassCastException("Calling fragment must implement AppointmentDialogListener");
+        }
     }
 }

@@ -1,9 +1,11 @@
 package com.example.myapplication;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
@@ -15,6 +17,7 @@ public class HomePage extends Fragment {
     private TextView nextAppointmentTextView;
     private TextView bloodPressureTextView;
     private TextView heartRateTextView;
+    private ImageButton accountManagerButton;
 
     public HomePage() {
         // Required empty public constructor
@@ -29,6 +32,20 @@ public class HomePage extends Fragment {
         nextAppointmentTextView = view.findViewById(R.id.nextAppointmentText);
         bloodPressureTextView = view.findViewById(R.id.bloodPressureText);
         heartRateTextView = view.findViewById(R.id.heartRateText);
+        accountManagerButton = view.findViewById(R.id.accountManagerButton);
+
+        String username = getArguments().getString("username");
+
+        // Set onClickListener to accountManagerButton
+        accountManagerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Start AccountManager activity
+                Intent intent = new Intent(getActivity(), AccountManagerActivity.class);
+                intent.putExtra("username", username);
+                startActivity(intent);
+            }
+        });
 
         // Assume you have methods to get heart rate and blood pressure data
         // For example:
@@ -41,7 +58,6 @@ public class HomePage extends Fragment {
 
         // Retrieve other data from arguments
         if (getArguments() != null) {
-            String username = getArguments().getString("username");
             String nextMedication = getArguments().getString("nextMedication");
             String nextAppointment = getArguments().getString("nextAppointment");
 

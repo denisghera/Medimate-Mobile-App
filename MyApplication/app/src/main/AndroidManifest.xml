@@ -24,6 +24,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".HomeMainActivity" />
+        <activity android:name=".AccountManagerActivity"/>
     </application>
 
 </manifest>

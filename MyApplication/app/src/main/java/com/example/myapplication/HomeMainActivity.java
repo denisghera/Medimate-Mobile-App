@@ -16,7 +16,7 @@ public class HomeMainActivity extends AppCompatActivity implements View.OnClickL
     private ImageButton homeButton;
     private ImageButton remindersButton;
     private ImageButton symptomsButton;
-    private String username;
+    public String username;
     SQLiteDatabase db;
 
     @Override
@@ -42,22 +42,23 @@ public class HomeMainActivity extends AppCompatActivity implements View.OnClickL
 
         // Initialize database
         db = openOrCreateDatabase("ProjectDB", Context.MODE_PRIVATE, null);
-        db.execSQL("CREATE TABLE IF NOT EXISTS reminders(name VARCHAR, reminder VARCHAR);");
-        db.execSQL("CREATE TABLE IF NOT EXISTS appointments(name VARCHAR, appointment VARCHAR);");
+        db.execSQL("DROP TABLE reminders");
+        db.execSQL("DROP TABLE appointments");
+        db.execSQL("CREATE TABLE IF NOT EXISTS reminders(name VARCHAR, medicationName VARCHAR, time VARCHAR, day VARCHAR);");
+        db.execSQL("CREATE TABLE IF NOT EXISTS appointments(name VARCHAR, doctorName VARCHAR, specialization VARCHAR, time VARCHAR, day VARCHAR);");
 
         // Load initial fragment with username
         HomePage homePageFragment = new HomePage();
         Bundle bundle = new Bundle();
         bundle.putString("username", username);
-        bundle.putString("nextMedication", getNextReminder("reminders"));
-        bundle.putString("nextAppointment", getNextReminder("appointments"));
+        bundle.putString("nextMedication", getNextReminder());
+        bundle.putString("nextAppointment", getNextAppointment());
         homePageFragment.setArguments(bundle);
 
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, homePageFragment)
                 .commit();
     }
-
     @Override
     public void onClick(View v) {
         Fragment fragment = null;
@@ -66,12 +67,12 @@ public class HomeMainActivity extends AppCompatActivity implements View.OnClickL
 
         if (v.getId() == R.id.homeButton) {
             fragment = new HomePage();
-            bundle.putString("nextMedication", getNextReminder("reminders"));
-            bundle.putString("nextAppointment", getNextReminder("appointments"));
+            bundle.putString("nextMedication", getNextReminder());
+            bundle.putString("nextAppointment", getNextAppointment());
         } else if (v.getId() == R.id.remindersButton) {
             fragment = new RemindersPage();
-            bundle.putString("nextMedication", getNextReminder("reminders"));
-            bundle.putString("nextAppointment", getNextReminder("appointments"));
+            bundle.putString("nextMedication", getNextReminder());
+            bundle.putString("nextAppointment", getNextAppointment());
         } else if (v.getId() == R.id.symptomsButton) {
             fragment = new SymptomsPage();
             // Add other relevant data to the bundle if needed
@@ -82,20 +83,31 @@ public class HomeMainActivity extends AppCompatActivity implements View.OnClickL
             navigateToFragment(fragment);
         }
     }
-
     public void navigateToFragment(Fragment fragment) {
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, fragment)
                 .addToBackStack(null)
                 .commit();
     }
-
-    private String getNextReminder(String tableName) {
-        Cursor cursor = db.rawQuery("SELECT " + tableName.substring(0, tableName.length() -1) + " FROM " + tableName + " LIMIT 1", null);
+    private String getNextReminder() {
+        Cursor cursor = db.rawQuery("SELECT medicationName, time FROM reminders ORDER BY time ASC LIMIT 1", null);
         if (cursor.moveToFirst()) {
-            String reminder = cursor.getString(0);
+            String medicationName = cursor.getString(0);
+            String time = cursor.getString(1);
             cursor.close();
-            return reminder;
+            return medicationName + " " + time;
+        } else {
+            cursor.close();
+            return null;
+        }
+    }
+    private String getNextAppointment() {
+        Cursor cursor = db.rawQuery("SELECT doctorName, time FROM appointments ORDER BY time ASC LIMIT 1", null);
+        if (cursor.moveToFirst()) {
+            String doctorName = cursor.getString(0);
+            String time = cursor.getString(1);
+            cursor.close();
+            return doctorName + " " + time;
         } else {
             cursor.close();
             return null;
@@ -124,4 +136,6 @@ public class HomeMainActivity extends AppCompatActivity implements View.OnClickL
             return false;
         }
     }
+
+    public SQLiteDatabase getProjectDB() { return db; }
 }

@@ -2,7 +2,9 @@ package com.example.myapplication;
 
 import android.app.Dialog;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -24,6 +26,12 @@ import java.util.List;
 
 public class MedicationDialogFragment extends DialogFragment {
 
+    public interface MedicationDialogListener {
+        void onMedicationSaved(String name, String time, String repeat, String duration);
+    }
+
+    private MedicationDialogListener listener;
+
     private String selectedDay = "day";
     private TextView selectedDayInCalendar;
     private EditText medicationNameEditText;
@@ -31,6 +39,7 @@ public class MedicationDialogFragment extends DialogFragment {
     private EditText medicationRepeatEditText;
     private EditText medicationDurationEditText;
     private Button medicationSaveButton;
+    SQLiteDatabase db;
 
     private int selectedHour, selectedMinute;
     private boolean[] selectedDays = new boolean[7];
@@ -130,10 +139,26 @@ public class MedicationDialogFragment extends DialogFragment {
         String repeat = medicationRepeatEditText.getText().toString();
         String duration = medicationDurationEditText.getText().toString();
 
-        if (TextUtils.isEmpty(name) || TextUtils.isEmpty(time) || TextUtils.isEmpty(repeat) || TextUtils.isEmpty(duration)) {
-            Toast.makeText(requireContext(), "Please enter all fields", Toast.LENGTH_SHORT).show();
+        if (TextUtils.isEmpty(name) || TextUtils.isEmpty(time)) {
+            Toast.makeText(requireContext(), "Please enter name and time", Toast.LENGTH_SHORT).show();
             return;
         }
+
+        // Use the listener to send the data back to the parent fragment
+        if (listener != null) {
+            listener.onMedicationSaved(name, time, repeat, duration);
+        }
         dismiss();
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        try {
+            // Attach the listener
+            listener = (MedicationDialogListener) getTargetFragment();
+        } catch (ClassCastException e) {
+            throw new ClassCastException("Calling fragment must implement MedicationDialogListener");
+        }
     }
 }
