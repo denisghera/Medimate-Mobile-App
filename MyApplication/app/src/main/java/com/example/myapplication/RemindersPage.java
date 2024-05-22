@@ -44,7 +44,8 @@ public class RemindersPage extends Fragment implements MedicationDialogFragment.
             @Override
             public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
                 // Month is 0-indexed, so add 1 to it
-                selectedDate = dayOfMonth + " - " + (month + 1) + " - " + year;
+                String formattedMonth = String.format("%02d", month + 1);
+                selectedDate = dayOfMonth + " - " + formattedMonth + " - " + year;
             }
         });
 
