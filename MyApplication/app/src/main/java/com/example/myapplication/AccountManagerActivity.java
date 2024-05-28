@@ -17,14 +17,15 @@ import android.widget.TextView;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-public class AccountManagerActivity extends AppCompatActivity {
+public class AccountManagerActivity extends AppCompatActivity implements ChangePasswordDialogFragment.ChangePasswordDialogListener {
     private TextView usernameTextView;
-    private TextView passwordTextView;
     private TextView emailTextView;
     private ImageView userIconImageView;
     private ImageButton changeIconFab;
     private Button backButton;
+    private Button changePasswordButton;
     SQLiteDatabase db;
+    private String password;
 
     private final int[] icons = {R.drawable.user1, R.drawable.user2, R.drawable.user3, R.drawable.user4};
 
@@ -34,7 +35,7 @@ public class AccountManagerActivity extends AppCompatActivity {
         setContentView(R.layout.account_manager_activity);
 
         usernameTextView = findViewById(R.id.usernameTextView);
-        passwordTextView = findViewById(R.id.passwordTextView);
+        changePasswordButton = findViewById(R.id.changePasswordButton);
         emailTextView = findViewById(R.id.emailTextView);
         userIconImageView = findViewById(R.id.userIconImageView);
         changeIconFab = findViewById(R.id.changeIconFab);
@@ -46,8 +47,25 @@ public class AccountManagerActivity extends AppCompatActivity {
         String username = intent.getStringExtra("username");
         usernameTextView.setText(username);
 
-        String password = getPasswordFromDatabase(username);
-        passwordTextView.setText(password);
+        password = getPasswordFromDatabase(username);
+        changePasswordButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ChangePasswordDialogFragment dialogFragment = new ChangePasswordDialogFragment();
+                Bundle args = new Bundle();
+                args.putString("password", password);
+                args.putString("username", username);
+                dialogFragment.setArguments(args);
+                dialogFragment.listener = new ChangePasswordDialogFragment.ChangePasswordDialogListener() {
+                    @Override
+                    public void onPasswordChanged(String username, String newPassword) {
+                        db.execSQL("UPDATE credentials SET password=? WHERE name=?", new Object[]{newPassword,username});
+
+                    }
+                };
+                dialogFragment.show(getSupportFragmentManager(), "ChangePasswordDialogFragment");
+            }
+        });
 
         String email = getEmailFromDatabase(username);
         emailTextView.setText(email);
@@ -130,5 +148,10 @@ public class AccountManagerActivity extends AppCompatActivity {
     }
     private void saveIconToDatabase(String username, int icon) {
         db.execSQL("UPDATE credentials SET icon=? WHERE name=?", new Object[]{icon, username});
+    }
+    @Override
+    public void onPasswordChanged(String username, String newPassword) {
+        db.execSQL("UPDATE credentials SET password=? WHERE name=?", new Object[]{newPassword,username});
+        password = newPassword;
     }
 }
