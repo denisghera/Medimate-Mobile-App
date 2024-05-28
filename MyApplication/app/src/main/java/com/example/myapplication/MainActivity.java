@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
 
         db = openOrCreateDatabase("ProjectDB", Context.MODE_PRIVATE, null);
-        db.execSQL("CREATE TABLE IF NOT EXISTS credentials(name VARCHAR,email VARCHAR, password VARCHAR);");
+        db.execSQL("CREATE TABLE IF NOT EXISTS credentials(name VARCHAR,email VARCHAR, password VARCHAR, icon INTEGER);");
 
         showFragment(false);
         animatePillRotation();

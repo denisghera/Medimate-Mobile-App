@@ -44,7 +44,6 @@ public class SignupPage extends Fragment {
         EditText confirmPasswordEditText = view.findViewById(R.id.edittext_password_check);
         ImageButton toggleConfirmPasswordButton = view.findViewById(R.id.button_toggle_password_check_visibility);
 
-        // Set click listener for toggle password visibility button
         togglePasswordButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -62,11 +61,9 @@ public class SignupPage extends Fragment {
             }
         });
 
-        // Set click listener for toggle confirm password visibility button
         toggleConfirmPasswordButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Toggle confirm password visibility
                 if (confirmPasswordEditText.getInputType() == (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)) {
                     confirmPasswordEditText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
                     toggleConfirmPasswordButton.setImageResource(R.drawable.baseline_visibility_off_24);
@@ -75,7 +72,6 @@ public class SignupPage extends Fragment {
                     toggleConfirmPasswordButton.setImageResource(R.drawable.baseline_visibility_24);
                 }
 
-                // Move cursor to the end of the text
                 confirmPasswordEditText.setSelection(confirmPasswordEditText.getText().length());
             }
         });

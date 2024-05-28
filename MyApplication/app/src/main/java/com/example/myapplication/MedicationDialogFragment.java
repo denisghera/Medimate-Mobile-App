@@ -1,9 +1,11 @@
 package com.example.myapplication;
 
-import android.app.Dialog;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -147,10 +149,48 @@ public class MedicationDialogFragment extends DialogFragment {
         // Use the listener to send the data back to the parent fragment
         if (listener != null) {
             listener.onMedicationSaved(name, time, repeat, duration);
+            scheduleAlarm(name, time, repeat, duration);
         }
         dismiss();
     }
+    private void scheduleAlarm(String name, String time, String repeat, String duration) {
+        // Parse time string to get hour and minute
+        String[] timeParts = time.split(":");
+        int hour = Integer.parseInt(timeParts[0]);
+        int minute = Integer.parseInt(timeParts[1]);
 
+        // Parse selected day string to get day, month, and year
+        String[] dayParts = selectedDay.split("-");
+        int year = Integer.parseInt(dayParts[2]);
+        int month = Integer.parseInt(dayParts[1]) - 1; // Month is 0-based in Calendar class
+        int day = Integer.parseInt(dayParts[0]);
+
+        // Get instance of Calendar and set the alarm time
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.YEAR, year);
+        calendar.set(Calendar.MONTH, month);
+        calendar.set(Calendar.DAY_OF_MONTH, day);
+        calendar.set(Calendar.HOUR_OF_DAY, hour);
+        calendar.set(Calendar.MINUTE, minute);
+        calendar.set(Calendar.SECOND, 0); // Set seconds to zero for precise timing
+
+        // Generate a unique requestCode
+        int requestCode = generateRequestCode(name, time);
+
+        // Schedule alarm using AlarmManager
+        AlarmManager alarmManager = (AlarmManager) requireContext().getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(requireContext(), AlarmReceiver.class);
+        intent.putExtra("name", name);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(requireContext(), requestCode, intent, PendingIntent.FLAG_IMMUTABLE); // Specify FLAG_IMMUTABLE
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+
+        Toast.makeText(requireContext(), "Medication reminder scheduled", Toast.LENGTH_SHORT).show();
+    }
+    private int generateRequestCode(String name, String time) {
+        // Combine medication name and time to generate a unique integer code
+        String uniqueString = name + time;
+        return uniqueString.hashCode();
+    }
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);

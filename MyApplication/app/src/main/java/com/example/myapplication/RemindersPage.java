@@ -16,14 +16,17 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import java.util.Calendar;
+import java.util.HashSet;
+import java.util.Set;
 
 public class RemindersPage extends Fragment implements MedicationDialogFragment.MedicationDialogListener, AppointmentDialogFragment.AppointmentDialogListener {
 
     private ImageButton addMedicationButton;
     private ImageButton addAppointmentButton;
     private String selectedDate;
+    private CalendarView calendarView;
     private boolean isButtonsVisible = false;
-
+    private Set<String> savedDates = new HashSet<>();
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -33,19 +36,20 @@ public class RemindersPage extends Fragment implements MedicationDialogFragment.
         addMedicationButton = view.findViewById(R.id.addMedicationButton);
         addAppointmentButton = view.findViewById(R.id.addAppointmentButton);
 
-        CalendarView calendarView = view.findViewById(R.id.calendarView);
+        calendarView = view.findViewById(R.id.calendarView);
 
         Calendar calendar = Calendar.getInstance();
         int currentYear = calendar.get(Calendar.YEAR);
         int currentMonth = calendar.get(Calendar.MONTH) + 1; // Month is 0-indexed, so add 1
         int currentDayOfMonth = calendar.get(Calendar.DAY_OF_MONTH);
-        selectedDate = currentDayOfMonth + " - " + currentMonth + " - " + currentYear;
+        String formattedMonth = String.format("%02d", currentMonth + 1);
+        selectedDate = currentDayOfMonth + "-" + formattedMonth + "-" + currentYear;
         calendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             @Override
             public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
                 // Month is 0-indexed, so add 1 to it
                 String formattedMonth = String.format("%02d", month + 1);
-                selectedDate = dayOfMonth + " - " + formattedMonth + " - " + year;
+                selectedDate = dayOfMonth + "-" + formattedMonth + "-" + year;
             }
         });
 
@@ -57,7 +61,6 @@ public class RemindersPage extends Fragment implements MedicationDialogFragment.
             }
         });
 
-        // Set click listeners for medication and appointment buttons
         addMedicationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -85,7 +88,6 @@ public class RemindersPage extends Fragment implements MedicationDialogFragment.
     }
 
     private void showButtons() {
-        // Slide animation to move buttons from off-screen to their positions
         TranslateAnimation translateMedication = new TranslateAnimation(-1000f, 0f, 0f, 0f);
         translateMedication.setDuration(500);
         addMedicationButton.setVisibility(View.VISIBLE);
@@ -98,7 +100,6 @@ public class RemindersPage extends Fragment implements MedicationDialogFragment.
     }
 
     private void hideButtons() {
-        // Slide animation to move buttons from their positions to off-screen
         TranslateAnimation translateMedication = new TranslateAnimation(0f, -1000f, 0f, 0f);
         translateMedication.setDuration(500);
         addMedicationButton.startAnimation(translateMedication);
@@ -110,7 +111,6 @@ public class RemindersPage extends Fragment implements MedicationDialogFragment.
         addAppointmentButton.setVisibility(View.INVISIBLE);
     }
 
-    // Method to show medication dialog fragment
     private void showMedicationDialog() {
         MedicationDialogFragment dialogFragment = new MedicationDialogFragment();
         Bundle args = new Bundle();
@@ -127,6 +127,20 @@ public class RemindersPage extends Fragment implements MedicationDialogFragment.
         dialogFragment.setTargetFragment(this, 0); // Set this fragment as the target
         dialogFragment.show(getParentFragmentManager(), "AppointmentDialogFragment");
     }
+    private void markSavedDates(CalendarView calendarView) {
+        for (String date : savedDates) {
+            String[] dateParts = date.split("-");
+            int day = Integer.parseInt(dateParts[0]);
+            int month = Integer.parseInt(dateParts[1]) - 1; // Month is 0-indexed
+            int year = Integer.parseInt(dateParts[2]);
+
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(year, month, day);
+            long milliTime = calendar.getTimeInMillis();
+
+            calendarView.setDate(milliTime, true, false);
+        }
+    }
     @Override
     public void onMedicationSaved(String name, String time, String repeat, String duration) {
         SQLiteDatabase db = ((HomeMainActivity)requireActivity()).getProjectDB();
@@ -138,6 +152,8 @@ public class RemindersPage extends Fragment implements MedicationDialogFragment.
         db.execSQL(sql, new Object[]{username, name, time, selectedDate});
 
         Toast.makeText(getContext(), "Medication Saved!", Toast.LENGTH_LONG).show();
+        savedDates.add(selectedDate);
+        markSavedDates(calendarView);
     }
     @Override
     public void onAppointmentSaved(String name, String specialization, String time) {
@@ -150,5 +166,7 @@ public class RemindersPage extends Fragment implements MedicationDialogFragment.
         db.execSQL(sql, new Object[]{username, name, specialization, time, selectedDate});
 
         Toast.makeText(getContext(), "Appointment Saved!", Toast.LENGTH_LONG).show();
+        savedDates.add(selectedDate);
+        markSavedDates(calendarView);
     }
 }

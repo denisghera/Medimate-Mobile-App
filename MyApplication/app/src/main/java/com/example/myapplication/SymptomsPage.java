@@ -41,14 +41,12 @@ public class SymptomsPage extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.symptoms_page, container, false);
 
         searchEditText = view.findViewById(R.id.searchEditText);
         recyclerView = view.findViewById(R.id.recyclerView);
         constraintLayout = view.findViewById(R.id.constraintLayout);
 
-        // Initialize data list with sample data
         dataList = new ArrayList<>();
         dataList.add(new DiseaseItem("Influenza", "A viral infection that attacks your respiratory system.", "Fever, cough, sore throat"));
         dataList.add(new DiseaseItem("Diabetes", "A group of diseases that result in too much sugar in the blood.", "Increased thirst, frequent urination"));
@@ -69,7 +67,6 @@ public class SymptomsPage extends Fragment {
             }
         });
 
-        // Add a TextWatcher to update the list as the user types with debouncing
         searchEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
@@ -106,8 +103,6 @@ public class SymptomsPage extends Fragment {
         }
 
         adapter.updateData(filteredList);
-
-        // Show RecyclerView and update constraints
         TransitionManager.beginDelayedTransition(constraintLayout);
 
         ConstraintSet constraintSet = new ConstraintSet();
